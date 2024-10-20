@@ -8,7 +8,7 @@ const AnimationMakerStyles = StyleSheet.create({
     width:'84%', height:'20%', backgroundColor:'red'
   },
   preview:{
-    width:'100%', height:'60%', backgroundColor:'purple',
+    width:'100%', height:'60%', backgroundColor:'blue',
   },
   operationContainer:{
     width:'100%', 
