@@ -1,0 +1,646 @@
+// import React, {useEffect, useState} from 'react';
+// import {
+//   LayoutRectangle,
+//   StyleProp,
+//   StyleSheet,
+//   Text,
+//   TextStyle,
+//   TouchableOpacity,
+//   View,
+//   ViewStyle,
+// } from 'react-native';
+// import {
+//   Svg,
+//   Circle,
+//   Path,
+//   Rect,
+//   G,
+//   LinearGradient,
+//   Stop,
+//   Defs,
+// } from 'react-native-svg';
+// import {
+//   containerRect,
+//   SliderPoint,
+//   splitThumbProps,
+// } from '../../types/sliderTypes';
+// import Animated, {
+//   createAnimatedPropAdapter,
+//   interpolateColor,
+//   processColor,
+//   runOnJS,
+//   SharedValue,
+//   useAnimatedProps,
+//   useAnimatedReaction,
+//   useAnimatedStyle,
+//   useSharedValue,
+//   withTiming,
+// } from 'react-native-reanimated';
+// import {BlColors} from '../../colors/colors';
+// import {AnimationPreview} from './AnimationPreview';
+// import {ZonesEditor} from './ZonesEditor';
+
+// const styles = StyleSheet.create({
+//   animationPreview: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//     paddingHorizontal: '3%',
+//     width: '90%',
+//     height: '9%',
+//     borderRadius: 30,
+//     backgroundColor: '#242424',
+//   },
+//   ledCircle: {
+//     height: '50%',
+//     width: '8.4%',
+//   },
+//   operationsContainer: {
+//     width: '100%',
+//     height: '50%',
+//     backgroundColor: 'purple',
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   operationButton: {
+//     width: '6.8%',
+//     height: '65%',
+//     alignSelf: 'center',
+//   },
+//   modesList: {
+//     height: '100%',
+//     backgroundColor: '#242424',
+//     borderRadius: 8,
+//     marginHorizontal: '2%',
+//     alignSelf: 'flex-start',
+//   },
+//   modesContentContainerStyle: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     paddingHorizontal: 10,
+//     width: '100%',
+//     height: 20,
+//   },
+//   modesActiveText: {
+//     fontFamily: 'Inter SemiBold',
+//     fontSize: 15,
+//     color: BlColors.Primary,
+//   },
+//   modesInactiveText: {
+//     fontFamily: 'Inter SemiBold',
+//     fontSize: 15,
+//     color: '#808080',
+//   },
+// });
+
+// type ZoneType = {
+//   id: number;
+//   points: {left: {id: number; x: number}; right: {id: number; x: number}};
+//   fill: {left: string; right: string};
+// };
+
+// const getSliderPoints = (container: LayoutRectangle, ledCount: number) => {
+//   const newPoints: SliderPoint[] = [];
+//   for (let id = 0; id < ledCount; id++) {
+//     let x =
+//       (container.width / 100) * (id / (ledCount - 1)) * 94 +
+//       (container.width / 100) * 3;
+//     let y = container.height / 2;
+//     newPoints.push({id, x, y});
+//     if (id > 90) {
+//       console.log(id, x);
+//     }
+//   }
+//   return newPoints;
+// };
+
+// export const AnimationMaker = () => {
+//   const [layout, setLayout] = useState<LayoutRectangle>({
+//     x: 0,
+//     y: 0,
+//     width: 20,
+//     height: 20,
+//   });
+//   const [sliderPoints, setSliderPoints] = useState<SliderPoint[]>([]);
+//   const [zonesEditor, setZonesEditor] = useState<{
+//     zones: ZoneType[];
+//     isVisible: boolean;
+//     movZones: {left: ZoneType; right: ZoneType} | undefined;
+//   }>({zones: [], isVisible: false, movZones: undefined});
+
+//   const handleLayout = (layout: LayoutRectangle) => {
+//     setLayout(layout);
+//     setSliderPoints(getSliderPoints(layout, 23));
+//   };
+
+//   const handleSvgLayout = () => {
+//     getZones(3);
+//   };
+
+//   const handleTouchStart = (x: number) => {
+//     const thumbsX = zonesEditor.zones
+//       .map(res =>
+//         res.id == 0
+//           ? undefined
+//           : {id: res.points.left.id, x: res.points.left.x},
+//       )
+//       .filter(res => res != undefined);
+//     thumbsX.forEach(p => {
+//       if (x < p.x + 30 && x > p.x - 30) {
+//       }
+//     });
+//   };
+
+//   const getZones = (numZones: number) => {
+//     let colors: {id: number; fill: {left: string; right: string}}[] = [];
+//     for (let i = 0; i < numZones; i++) {
+//       let randomClr = '';
+//       randomClr = randomColor();
+//       colors.push({
+//         id: i,
+//         fill: zonesEditor.zones[i]
+//           ? zonesEditor.zones[i].fill
+//           : {left: randomClr, right: randomClr},
+//       });
+//     }
+//     const newZones: ZoneType[] = [];
+//     setZonesEditor(p => ({...p, zones: []}));
+//     for (let id = 0; id < numZones; id++) {
+//       let left =
+//         sliderPoints[Math.round(((sliderPoints.length - 1) / numZones) * id)];
+//       let right =
+//         sliderPoints[
+//           Math.round(((sliderPoints.length - 1) / numZones) * (id + 1))
+//         ];
+//       newZones.push({id, points: {left, right}, fill: colors[id].fill});
+//     }
+//     setZonesEditor(p => ({...p, zones: newZones}));
+//     // onZoneAdd(newZones)
+//   };
+
+//   const handleTouchMove = (x: number) => {};
+
+//   const marginTop = useSharedValue(0);
+
+//   const animatedStyle = useAnimatedStyle(() => ({
+//     marginTop: withTiming(marginTop.value),
+//   }));
+
+//   const handleShowZonesEditorButtonPress = () => {
+//     if (!zonesEditor.isVisible) {
+//       setZonesEditor(p => ({...p, isVisible: true}));
+//       marginTop.value = marginTop.value + 10;
+//     }
+//   };
+
+//   return (
+//     <View style={{width: '90%', height: '20%'}}>
+//       <View
+//         style={{width: '100%', height: '55%'}}
+//         onLayout={e => handleLayout(e.nativeEvent.layout)}
+//         onTouchMove={e => handleTouchMove(e.nativeEvent.locationX)}>
+//         <Svg
+//           onLayout={handleSvgLayout}
+//           onTouchStart={e => handleTouchStart(e.nativeEvent.locationX)}>
+//           <Defs>
+//             <StrokeGrad zones={zonesEditor.zones} layoutWidth={layout.width} />
+//             <FillGrad zones={zonesEditor.zones} layoutWidth={layout.width} />
+//           </Defs>
+//           <Rect
+//             width={'99%'}
+//             height={'97%'}
+//             x={1.5}
+//             y={1}
+//             fill={'none'}
+//             rx={40}
+//             ry={40}
+//             stroke={'url(#StrokeGrad)'}
+//             strokeWidth={'1%'}
+//           />
+//           <Rect
+//             width={'99%'}
+//             height={'97%'}
+//             x={1.5}
+//             y={1}
+//             fill={'#242424'}
+//             rx={40}
+//             ry={40}
+//           />
+//           <AnimationPreview animationModeId={0} />
+//           <Rect
+//             width={'99%'}
+//             height={'97%'}
+//             x={1.5}
+//             y={1}
+//             fill={'url(#FillGrad)'}
+//             rx={40}
+//             ry={40}
+//             opacity={0.5}
+//           />
+//           <Thumbs layout={layout} zones={zonesEditor.zones} />
+//         </Svg>
+//       </View>
+//       <View
+//         style={{
+//           width: '100%',
+//           height: '45%',
+//           backgroundColor: 'red',
+//           justifyContent: 'center',
+//         }}>
+//         <Animated.View style={[styles.operationsContainer, animatedStyle]}>
+//           <ShowZonesEditorButton
+//             style={styles.operationButton}
+//             onPress={handleShowZonesEditorButtonPress}
+//             isVisible={zonesEditor.isVisible}
+//           />
+//           <ModesListModal style={styles.modesList} />
+//           <ShowLevelsButton style={styles.operationButton} />
+//         </Animated.View>
+//       </View>
+//     </View>
+//   );
+// };
+
+// const randomColor = () => {
+//   const r = Math.floor(Math.random() * 256);
+//   const g = Math.floor(Math.random() * 256);
+//   const b = Math.floor(Math.random() * 256);
+//   return `#${r.toString(16).padStart(2, '0')}${g
+//     .toString(16)
+//     .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+// };
+
+// const Thumbs: React.FC<{
+//   zones: ZoneType[];
+//   layout: {width: number; height: number};
+// }> = ({zones, layout}) => {
+//   let y = layout.height;
+//   return (
+//     <Svg>
+//       {zones.map((zone, id) => (
+//         <G>
+//           {zones.length == 0 ? undefined : zone.id == 0 ? undefined : (
+//             <Circle
+//               key={id}
+//               cx={zone.points.left.x}
+//               cy={layout.height / 2}
+//               r={8}
+//               fill={'white'}
+//             />
+//           )}
+//         </G>
+//       ))}
+//     </Svg>
+//   );
+// };
+
+// const StrokeGrad: React.FC<{zones: ZoneType[]; layoutWidth: number}> = ({
+//   zones,
+//   layoutWidth,
+// }) => {
+//   const [stops, setStops] = useState<
+//     {id: number; offset: string; color: string}[]
+//   >([]);
+//   useEffect(() => {
+//     setStops(
+//       zones
+//         .map(zone => [
+//           {
+//             id: zone.id,
+//             offset: `${zone.points.left.x / (layoutWidth / 100)}%`,
+//             color: zone.fill.left,
+//           },
+//           {
+//             id: zone.id + 1,
+//             offset: `${zone.points.right.x / (layoutWidth / 100)}%`,
+//             color: zone.fill.right,
+//           },
+//         ])
+//         .flat(),
+//     );
+//   }, [zones]);
+//   return (
+//     <LinearGradient id="StrokeGrad">
+//       {stops.map((stop, index) => (
+//         <Stop
+//           key={index}
+//           offset={stop.offset}
+//           stopColor={stop.color}
+//           stopOpacity={1}
+//         />
+//       ))}
+//     </LinearGradient>
+//   );
+// };
+
+// const FillGrad: React.FC<{zones: ZoneType[]; layoutWidth: number}> = ({
+//   zones,
+//   layoutWidth,
+// }) => {
+//   const [stops, setStops] = useState<
+//     {id: number; offset: string; color: string; opacity: number}[]
+//   >([]);
+//   useEffect(() => {
+//     setStops(
+//       zones
+//         .map((zone, id) =>
+//           id > 0 && id < zones.length - 1
+//             ? [
+//                 {
+//                   id: zone.id,
+//                   offset: `${zone.points.left.x / (layoutWidth / 100)}%`,
+//                   color: zone.fill.left,
+//                   opacity: 1,
+//                 },
+//                 {
+//                   id: zone.id + 1,
+//                   offset: `${
+//                     ((zone.points.right.x - zone.points.left.x) / 2 +
+//                       zone.points.left.x) /
+//                     (layoutWidth / 100)
+//                   }%`,
+//                   color: 'rgba(0,0,0,0)',
+//                   opacity: 1,
+//                 },
+//                 {
+//                   id: zone.id + 2,
+//                   offset: `${zone.points.right.x / (layoutWidth / 100)}%`,
+//                   color: zone.fill.right,
+//                   opacity: 1,
+//                 },
+//               ]
+//             : [
+//                 {
+//                   id: zone.id,
+//                   offset: `${zone.points.left.x / (layoutWidth / 100)}%`,
+//                   color: zone.fill.left,
+//                   opacity: 1,
+//                 },
+//                 {
+//                   id: zone.id,
+//                   offset: `${zone.points.right.x / (layoutWidth / 100)}%`,
+//                   color: zone.fill.left,
+//                   opacity: 1,
+//                 },
+//               ],
+//         )
+//         .flat(),
+//     );
+//   }, [zones]);
+//   return (
+//     <LinearGradient id="FillGrad">
+//       {stops.map((stop, index) => (
+//         <Stop
+//           key={index}
+//           offset={stop.offset}
+//           stopColor={stop.color}
+//           stopOpacity={1}
+//         />
+//       ))}
+//     </LinearGradient>
+//   );
+// };
+
+// const Stop1 = () => {
+//   return <Stop offset={'100%'} stopColor={'red'} stopOpacity={'1'} />;
+// };
+
+// interface IModesList {
+//   style: StyleProp<ViewStyle>;
+// }
+
+// type modeType = {id: number; mode: string; isPicked: boolean; width: number};
+
+// const ModesListModal: React.FC<IModesList> = ({style}) => {
+//   const [modesModal, setModesModal] = useState<{
+//     items: modeType[];
+//     isOpen: boolean;
+//     isOpenning: boolean;
+//     isClosing: boolean;
+//     height: number;
+//     layoutWhenClosed: {width: number; height: number};
+//   }>({
+//     items: [
+//       {id: 0, mode: 'Угли', isPicked: true, width: 0},
+//       {id: 1, mode: 'Звезда', isPicked: false, width: 0},
+//       {id: 2, mode: 'beatSin', isPicked: false, width: 0},
+//     ],
+//     isClosing: false,
+//     isOpenning: false,
+//     isOpen: false,
+//     height: 0,
+//     layoutWhenClosed: {width: 0, height: 0},
+//   });
+
+//   const width = useSharedValue(0);
+
+//   const height = useSharedValue(0);
+
+//   const handleModalClosed = () => {
+//     setModesModal(p => ({...p, isOpen: false, isClosing: false}));
+//   };
+
+//   const handleModalOpened = () => {
+//     setModesModal(p => ({...p, isOpen: true, isOpenning: false}));
+//   };
+
+//   const animatedStyle = useAnimatedStyle(() => {
+//     return height.value > 0 && width.value > 0
+//       ? {
+//           height: height.value,
+//           width: width.value,
+//         }
+//       : {};
+//   });
+
+//   const handleLayout = (layout: containerRect) => {
+//     if (height.value <= 0 && width.value <= 0) {
+//       setModesModal(p => ({
+//         ...p,
+//         height: layout.height,
+//         layoutWhenClosed: layout,
+//       }));
+//       height.value = layout.height;
+//       width.value = layout.width;
+//     }
+//   };
+
+//   const handleModalTextLayout = (id: number, width: number) => {
+//     if (!modesModal.isClosing) {
+//       setModesModal(p => ({
+//         ...p,
+//         items: p.items.map(res =>
+//           res.id === id ? {...res, width: width + 14} : res,
+//         ),
+//       }));
+//     }
+//   };
+
+//   const handleModalItemPress = (id: number) => {
+//     // onModeChange({id: id, name: modesModal.items[id].mode});
+//     setModesModal(p => ({
+//       ...p,
+//       items: p.items.map(res =>
+//         res.isPicked
+//           ? {...res, isPicked: false}
+//           : res.id == id
+//           ? {...res, isPicked: true}
+//           : res,
+//       ),
+//     }));
+//     closeModal(modesModal.items[id].width);
+//   };
+
+//   const openModal = () => {
+//     setModesModal(p => ({...p, isOpenning: true}));
+//     height.value = withTiming(300, {duration: 300}, () => {
+//       runOnJS(handleModalOpened)();
+//     });
+//     width.value = withTiming(250, {duration: 300});
+//   };
+
+//   const closeModal = (widthTo?: number) => {
+//     setModesModal(p => ({...p, isClosing: true}));
+//     height.value = withTiming(
+//       modesModal.layoutWhenClosed.height,
+//       {duration: 300},
+//       () => {
+//         runOnJS(handleModalClosed)();
+//       },
+//     );
+//     width.value = withTiming(widthTo ? widthTo : width.value - 200, {
+//       duration: 300,
+//     });
+//   };
+
+//   return (
+//     <Animated.View
+//       style={[style, animatedStyle]}
+//       onLayout={e => handleLayout(e.nativeEvent.layout)}>
+//       <Text
+//         style={{
+//           marginHorizontal: 7,
+//           fontFamily: 'Inter SemiBold',
+//           color: BlColors.Primary,
+//         }}
+//         onPress={openModal}>
+//         {modesModal.items.find(res => res.isPicked)?.mode}
+//       </Text>
+//       {modesModal.isClosing || modesModal.isOpen || modesModal.isOpenning ? (
+//         <Animated.FlatList
+//           showsHorizontalScrollIndicator={false}
+//           showsVerticalScrollIndicator={false}
+//           data={modesModal.items}
+//           contentContainerStyle={{
+//             borderWidth: 1,
+//             borderTopColor: '#808080',
+//             borderRightColor: 'rgba(0,0,0,0)',
+//             borderLeftColor: 'rgba(0,0,0,0)',
+//             borderBottomColor: 'rgba(0,0,0,0)',
+//           }}
+//           renderItem={({item, index}) =>
+//             item.isPicked ? null : (
+//               <View
+//                 style={{
+//                   height: modesModal.layoutWhenClosed.height,
+//                   flexDirection: 'row',
+//                   alignItems: 'center',
+//                   width: '100%',
+//                 }}
+//                 onTouchEnd={() => handleModalItemPress(index)}>
+//                 <Text
+//                   style={{
+//                     marginHorizontal: 6,
+//                     fontFamily: 'Inter SemiBold',
+//                     color: '#808080',
+//                   }}
+//                   onLayout={e =>
+//                     handleModalTextLayout(index, e.nativeEvent.layout.width)
+//                   }>
+//                   {item.mode}
+//                 </Text>
+//               </View>
+//             )
+//           }
+//         />
+//       ) : undefined}
+//     </Animated.View>
+//   );
+// };
+
+// interface IModeItem {
+//   modeName: string;
+//   isPicked: boolean;
+//   textStyle: {active: StyleProp<TextStyle>; inactive: StyleProp<TextStyle>};
+//   onTextLayout: (layout: containerRect) => void;
+// }
+
+// const ModeItem: React.FC<IModeItem> = ({
+//   onTextLayout,
+//   modeName,
+//   textStyle,
+//   isPicked,
+// }) => {
+//   return (
+//     <View
+//       style={{
+//         flexDirection: 'row',
+//         paddingLeft: 7,
+//         alignItems: 'center',
+//         width: '100%',
+//         height: 20,
+//       }}>
+//       <Text
+//         style={isPicked ? textStyle.active : textStyle.inactive}
+//         onLayout={e => onTextLayout(e.nativeEvent.layout)}>
+//         {modeName}
+//       </Text>
+//     </View>
+//   );
+// };
+
+// const ShowZonesEditorButton: React.FC<{
+//   style: StyleProp<ViewStyle>;
+//   onPress: () => void;
+//   isVisible: boolean;
+// }> = ({style, onPress, isVisible}) => {
+//   return (
+//     <TouchableOpacity style={style} onPress={onPress}>
+//       <Svg viewBox="0 0 10 10">
+//         <Path
+//           d="
+//         M 0 0.5 L 3 0.5 L 3 9.5  L 0 9.5 
+//         M 5 3 L 5 7 
+//         M 10 0.5 L 7 0.5 L 7 9.5 L 10 9.5"
+//           stroke={isVisible ? 'white' : '#808080'}
+//           strokeWidth={0.5}
+//           fill={'none'}
+//         />
+//       </Svg>
+//     </TouchableOpacity>
+//   );
+// };
+
+// const ShowLevelsButton: React.FC<{style: StyleProp<ViewStyle>}> = ({style}) => {
+//   return (
+//     <TouchableOpacity style={style}>
+//       <Svg viewBox="0 0 10 10">
+//         <Path
+//           d="
+//         M 2 0 
+//         L 2 5 A 1 1 0 0 0 2 8 
+//         A 1 1 0 0 0 2 5 
+//         M 2 8 L 2 10 
+//         M 8 0 L 8 2 
+//         A 1 1 0 0 0 8 5 
+//         A 1 1 0 0 0 8 2 
+//         M 8 5 L 8 10"
+//           stroke={'#808080'}
+//           strokeWidth={0.7}
+//           fill={'none'}
+//         />
+//       </Svg>
+//     </TouchableOpacity>
+//   );
+// };
